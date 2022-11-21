@@ -16,6 +16,7 @@
 #define KNIGHTS "5k2/1n6/4n3/6N1/8/3N4/8/5K2 w - - 0 1"
 #define ROOKS "8/2k5/3r4/3R4/8/1R4r1/7K/8 b - - 0 1"
 #define QUEENS "8/2k5/1n3n2/6q1/6N1/8/1Q5K/8 b - - 0 1"
+#define TRICKY "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
 
 // test fxn
@@ -45,12 +46,12 @@ int main() {
     board_t board[1];
     movelist_t list[1];
 
-    parse_fen(QUEENS, board);
+    parse_fen(TRICKY, board);
     print_board(board);
     generate_all_moves(board, list);
 
     
     assert(check_board(board));
-    //print_move_list(list);
+    print_move_list(list);
     return 0;
 }

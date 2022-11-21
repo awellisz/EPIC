@@ -206,12 +206,12 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
                     // recall: BLACK = 0, WHITE = 1
                     if (pos->pieces[t_sq] != EMPTY) {
                         if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-                            printf("\t\tCapture on %s\n", sq_to_str(t_sq));
+                            add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
                         }
                         // break out if we hit a non-empty square
                         break;
                     }
-                    printf("\t\tNormal on %s\n", sq_to_str(t_sq));
+                    add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
                     t_sq += dir;
                 }
             }
@@ -239,16 +239,60 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
 
                 if(SQOFFBOARD(t_sq)) continue;
 
-                // recall: BLACK = 0, WHITE = 1
+                // recall: BLACK = 0, WHITE = 1; side^1 = opposite
                 if (pos->pieces[t_sq] != EMPTY) {
                     if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-                        printf("\t\tCapture on %s\n", sq_to_str(t_sq));
+                        add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
                     }
                     continue;
                 }
-                printf("\t\tNormal on %s\n", sq_to_str(t_sq));
+                add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
             }
         }
         pce = loop_nonslides[pce_i++];
     }
+
+    // Castling
+    if (side == WHITE) {
+        if (pos->castle_perm & WKCA) {
+            // Make sure there's nothing between the king and H1 rook
+            if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
+                // Don't need to check G1 -- checking if king moves into check is done later
+                if (!sq_attacked(E1, BLACK, pos) && !sq_attacked(F1, BLACK, pos)) {
+                    // MFLAGCA signals adding the corresponding rook move --
+                    // will do that later in make_move()
+                    add_quiet_move(pos, MOVE(E1, G1, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+        if (pos->castle_perm & WQCA) {
+            // Make sure there's nothing between the king and A1 rook
+            if (pos->pieces[B1] == EMPTY 
+                && pos->pieces[C1] == EMPTY 
+                && pos->pieces[D1] == EMPTY) {
+                if (!sq_attacked(E1, BLACK, pos) && !sq_attacked(D1, BLACK, pos)) {
+                    add_quiet_move(pos, MOVE(E1, C1, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+    } else {
+        if (pos->castle_perm & BKCA) {
+            if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
+                if (!sq_attacked(E8, WHITE, pos) && !sq_attacked(F8, WHITE, pos)) {
+                    add_quiet_move(pos, MOVE(E8, G8, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+        if (pos->castle_perm & BQCA) {
+            if (pos->pieces[B8] == EMPTY 
+                && pos->pieces[C8] == EMPTY 
+                && pos->pieces[D8] == EMPTY) {
+                if (!sq_attacked(E8, WHITE, pos) && !sq_attacked(D8, WHITE, pos)) {
+                    add_quiet_move(pos, MOVE(E8, C8, EMPTY, EMPTY, MFLAGCA), list);
+                }
+            }
+        }
+    }
+    
+
 }
