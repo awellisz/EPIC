@@ -63,6 +63,7 @@ typedef struct {
 
 // Board representation 
 typedef struct {
+    // Keep track of all squares on board and what piece is on each sq
     int pieces[BRD_SQ_NUM];
     // 3 arrays: white, black, and both
     // A bit is set to 1 if there's a pawn of the corresponding color
@@ -212,5 +213,8 @@ extern bool piece_king[13];
 extern bool piece_rook_queen[13];
 extern bool piece_bishop_queen[13];
 extern bool piece_slides[13];
+// define in data.c for movegen.c
+extern int pce_dir[13][8];
+// extern int num_dir[13];
 
 #endif

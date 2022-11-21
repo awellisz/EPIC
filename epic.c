@@ -13,6 +13,9 @@
 #define FEN6 "8/8/8/3K4/8/8/8/8 w - - 0 2"
 #define PAWNSW "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 #define PAWNSB "rnbqkbnr/p1p1p3/3p3p/1p1p4/2P1Pp2/8/PP1P1PpP/RNBQKB1R b KQkq e3 0 1"
+#define KNIGHTS "5k2/1n6/4n3/6N1/8/3N4/8/5K2 w - - 0 1"
+#define ROOKS "8/2k5/3r4/3R4/8/1R4r1/7K/8 b - - 0 1"
+#define QUEENS "8/2k5/1n3n2/6q1/6N1/8/1Q5K/8 b - - 0 1"
 
 
 // test fxn
@@ -40,16 +43,14 @@ int main() {
 
     all_init();
     board_t board[1];
-    parse_fen(PAWNSW, board);
+    movelist_t list[1];
+
+    parse_fen(QUEENS, board);
     print_board(board);
+    generate_all_moves(board, list);
+
     
     assert(check_board(board));
-
-    movelist_t list[1];
-    generate_all_moves(board, list);
-    print_move_list(list);
-
-
-
+    //print_move_list(list);
     return 0;
 }

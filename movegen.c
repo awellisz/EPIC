@@ -182,24 +182,73 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
     // CONSIDER LOOPING BACKWARS SO THAT 
     // WE GENERATE MOVES FOR HIGH-VALUE PIECES FIRST --
     // THIS WILL BE IMPORTANT FOR ALPHA BETA PRUNING LATER
-    ////////////////////////////////////s
+    ////////////////////////////////////
 
-    // For sliding pieces:
+    // SLIDING PIECES (BISHOP, ROOK, QUEEN)
     int dir = 0;
     pce_i = ls_index[side]; //piece index
     pce = loop_slides[pce_i++];
     while (pce != 0) {
         assert(piece_valid(pce));
-        printf("Piece Index: %d, piece: %d\n", pce_i, pce);
+        printf("Sliding Piece Index: %d, piece: %d\n", pce_i, pce);
+        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
+
+            sq = pos->pce_list[pce][pce_num];
+            assert(sq_on_board(sq));
+            printf("Piece: %c on %s\n", pce_char[pce], sq_to_str(sq));
+
+            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
+                dir = pce_dir[pce][i];
+                t_sq = sq + dir;
+
+                // Loop along the "ray" in each direction
+                while(!SQOFFBOARD(t_sq)) {
+                    // recall: BLACK = 0, WHITE = 1
+                    if (pos->pieces[t_sq] != EMPTY) {
+                        if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+                            printf("\t\tCapture on %s\n", sq_to_str(t_sq));
+                        }
+                        // break out if we hit a non-empty square
+                        break;
+                    }
+                    printf("\t\tNormal on %s\n", sq_to_str(t_sq));
+                    t_sq += dir;
+                }
+            }
+        }
         pce = loop_slides[pce_i++];
     }
     
-    // Non-sliding pieces
+
+    // NON-SLIDING PIECES (KNIGHT AND KING)
     pce_i = ln_index[side]; //piece index
     pce = loop_nonslides[pce_i++];
     while (pce != 0) {
         assert(piece_valid(pce));
-         pce = loop_slides[pce_i++];
-    }
+        printf("Nonsliding piece index: %d, piece: %d\n", pce_i, pce);
 
+        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
+
+            sq = pos->pce_list[pce][pce_num];
+            assert(sq_on_board(sq));
+            printf("Piece: %c on %s\n", pce_char[pce], sq_to_str(sq));
+
+            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
+                dir = pce_dir[pce][i];
+                t_sq = sq + dir;
+
+                if(SQOFFBOARD(t_sq)) continue;
+
+                // recall: BLACK = 0, WHITE = 1
+                if (pos->pieces[t_sq] != EMPTY) {
+                    if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+                        printf("\t\tCapture on %s\n", sq_to_str(t_sq));
+                    }
+                    continue;
+                }
+                printf("\t\tNormal on %s\n", sq_to_str(t_sq));
+            }
+        }
+        pce = loop_nonslides[pce_i++];
+    }
 }
