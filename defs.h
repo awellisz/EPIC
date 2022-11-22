@@ -57,7 +57,7 @@ typedef struct {
     int move;
     int castle_perm;
     int en_pas;
-    int fity_move;
+    int fifty_move;
     U64 pos_key;
 } undo_t;
 
@@ -166,7 +166,7 @@ to get information about a move
 #define FR2SQ(f, r) ((21 + f) + (r * 10))
 #define SQ64(sq120) (Sq120ToSq64[sq120])
 #define SQ120(sq64) (Sq64ToSq120[sq64])
-
+// Set or clear a bit on a bitboard (used for pawns)
 #define SETBIT(bb,sq) ((bb) |= set_mask[(sq)])
 #define CLRBIT(bb,sq) ((bb) &= clear_mask[(sq)])
 
@@ -204,17 +204,16 @@ extern bool piece_maj[13];
 extern bool piece_min[13];
 extern int piece_val[13];
 extern int piece_col[13];
-// init.c
-extern int files_brd[BRD_SQ_NUM];
-extern int ranks_brd[BRD_SQ_NUM];
-// defined in data.c for use in attack.c
 extern bool piece_knight[13];
 extern bool piece_king[13];
 extern bool piece_rook_queen[13];
 extern bool piece_bishop_queen[13];
 extern bool piece_slides[13];
+extern bool piece_pawn[13];
 // define in data.c for movegen.c
 extern int pce_dir[13][8];
-// extern int num_dir[13];
+// init.c
+extern int files_brd[BRD_SQ_NUM];
+extern int ranks_brd[BRD_SQ_NUM];
 
 #endif
