@@ -48,4 +48,9 @@ bool piece_valid(const int pce);
 // movegen.c
 void generate_all_moves(const board_t *pos, movelist_t *list);
 
+// makemove.c
+void undo_move(board_t *pos);
+bool make_move(board_t *pos, int move);
+
+
 #endif
