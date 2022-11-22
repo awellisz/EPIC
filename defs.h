@@ -90,7 +90,7 @@ typedef struct {
 
     // number of each piece (there are 13 unique piece types total, incl. EMPTY)
     int pce_num[13];
-    // big pieces for each color, i.e. anything that isn't a pawn
+    // # of big pieces for each color, i.e. anything that isn't a pawn
     int big_pce[2];
     // major pieces, i.e. rooks and queens
     int maj_pce[2];

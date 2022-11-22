@@ -269,7 +269,7 @@ void reset_board(board_t *pos) {
     for (int i = 0; i < 13; i++) {
         pos->pce_num[i] = 0;
     }
-    // not set in loop above
+    // not set in loop above (WHITE, BLACK, and here BOTH)
     pos->pawns[2] = 0ULL;
 
     pos->king_sq[WHITE] = NO_SQ;

@@ -11,31 +11,32 @@
 // Loop for sliding piece move generation
 // For white: loop from index zero until you reach value 0
 // For black: loop from index four until you reach value 0
-int loop_slides[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};
+const int loop_slides[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};
 // Array to know where to index into loop_slides
 // (loop_slides_index)
-int ls_index[2] = {0, 4};
+const int ls_index[2] = {0, 4};
 
 // Same for non-sliding:
-int loop_nonslides[6] = {wN, wK, 0, bN, bK, 0};
-int ln_index[2] = {0, 3}; 
+const int loop_nonslides[6] = {wN, wK, 0, bN, bK, 0};
+const int ln_index[2] = {0, 3}; 
 
 
 
-int piece_dir[13][8] = {
+const int piece_dir[13][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
     
 };
 
+// Static for performance reasons
 // Add the input move into the movelist's array and updates the count
-void add_quiet_move(const board_t *pos, int move, movelist_t *list) {
+static void add_quiet_move(const board_t *pos, int move, movelist_t *list) {
     list->moves[list->count].move = move;
     list->moves[list->count].score = 0;
     list->count++;
 }
 
-void add_capture_move(const board_t *pos, int move, movelist_t *list) {
+static void add_capture_move(const board_t *pos, int move, movelist_t *list) {
     list->moves[list->count].move = move;
     list->moves[list->count].score = 0;
     list->count++;
@@ -49,7 +50,7 @@ void add_capture_move(const board_t *pos, int move, movelist_t *list) {
  * from, to: from and to squares
  * list: the current movelist 
  */
-void add_pawn_move(const board_t *pos, const int pawn_col, const int from, 
+static void add_pawn_move(const board_t *pos, const int pawn_col, const int from, 
                          const int to, const int cap, movelist_t *list) {
     
     assert(piece_valid_empty(cap));
