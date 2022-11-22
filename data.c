@@ -40,7 +40,7 @@ int piece_col[13] = {
     BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, 
 };
 
-// Is the piece we just hit in attack.c a knight? (etc.)
+// Is the piece a knight? (etc.)
 bool piece_knight[13] = {
     false,
     false, true, false, false, false, false, 
@@ -60,6 +60,11 @@ bool piece_bishop_queen[13] = {
     false,
     false, false, true, false, true, false,
     false, false, true, false, true, false
+};
+bool piece_pawn[13] = {
+    false,
+    true, false, false, false, false, false,
+    true, false, false, false, false, false,
 };
 bool piece_slides[13] = {
     false,
@@ -83,8 +88,7 @@ int pce_dir[13][8] = {
     {-1, -10, 1, 10, -9, -11, 11, 9} // bK
 };
 
-// int num_dir[13] = {0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8};
- 
+
 // RECALL: PIECE ENUM IS 
 // EMPTY, 
 // wP, wN, wB, wR, wQ, wK, 
