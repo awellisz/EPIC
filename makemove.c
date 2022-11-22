@@ -1,6 +1,7 @@
 // makemove.c
 // 11/21/22
 #include <stdio.h>
+#include <stdbool.h>
 #include "defs.h"
 #include "functions.h"
 
@@ -38,7 +39,7 @@ const int castle_perms[120] = {
 
 // Clear the piece on the given square
 static void clear_piece(const int sq, board_t *pos) {
-    assert(sq_on_board(sq))
+    assert(sq_on_board(sq));
     // Get the piece currently on the square
     int pce = pos->pieces[sq];
     assert(piece_valid(pce));
@@ -63,23 +64,256 @@ static void clear_piece(const int sq, board_t *pos) {
         CLRBIT(pos->pawns[BOTH],SQ64(sq));
     }
 
-
     for (int i = 0; i < pos->pce_num[pce]; i++) {
         if (pos->pce_list[pce][i] == sq) {
             t_pce_num = i;
             break;
         }
     }
-    // Double check that we did indeed find the piece to remove in the array
+
     assert(t_pce_num != -1);
-    // Decrement number of pieces in the position's piece list
     pos->pce_num[pce]--;
-    // Set the removed entry to the final entry
-    pos->piece_list[pce][t_pce_num] = pos->piece_list[pce][pos->pce_num[pce]];
-    // So: 
-    // - remove the piece at index t_pce_num in the piece list
-    // - replace it with the last piece in the list
+    pos->pce_list[pce][t_pce_num] = pos->pce_list[pce][pos->pce_num[pce]];
+    // - replace piece to remove with the last piece in the list
     // - reduce the piece list length so that it stops at the new end
     // - (the order of the pieces doesn't matter so this is valid)
+}
 
+
+static void add_piece(const int sq, board_t *pos, const int pce) {
+    assert(piece_valid(pce));
+    assert(sq_on_board(sq));
+
+    int col = piece_col[pce];
+
+    // Hash the new piece INTO the poskey
+    HASH_PCE(pce,sq);
+    pos->pieces[sq] = pce;
+    pos->material[col] += piece_val[pce];
+
+    if (piece_big[pce]) {
+        pos->big_pce[col]++;
+        if (piece_maj[pce]) pos->maj_pce[col]++;
+        else pos->min_pce[col]++;
+    } else {
+        SETBIT(pos->pawns[col],SQ64(sq));
+        SETBIT(pos->pawns[BOTH],SQ64(sq));
+    }
+
+    pos->pce_list[pce][pos->pce_num[pce]++] = sq;
+
+}
+
+// Move a piece from the from square to the to square
+// Could be implemented as successive calls to clear_piece() and add_piece(),
+//  but this is more efficient.
+static void move_piece(const int from, const int to, board_t *pos) {
+    assert(sq_on_board(from));
+    assert(sq_on_board(to));
+
+    int pce = pos->pieces[from];
+    int col = piece_col[pce];
+
+    pos->pieces[from] = EMPTY;
+    pos->pieces[to] = pce;
+    HASH_PCE(pce,from);
+    HASH_PCE(pce,to);
+    // for pawns
+    if (!piece_big[pce]) {
+        CLRBIT(pos->pawns[col],SQ64(from));
+        CLRBIT(pos->pawns[BOTH],SQ64(from));
+        SETBIT(pos->pawns[col],SQ64(to));
+        SETBIT(pos->pawns[BOTH],SQ64(to));
+    }
+    // Change the square for the piece in the piece list
+    for (int i = 0; i < pos->pce_num[pce]; i++) {
+        if (pos->pce_list[pce][i] == from) {
+            pos->pce_list[pce][i] = to;
+            break;
+        }
+    }
+}
+
+
+// Undoes the most recent move made by make_move()
+void undo_move(board_t *pos) {
+    assert(check_board(pos));
+
+    pos->hist_ply--;
+    pos->ply--;
+
+    int move = pos->history[pos->hist_ply].move;
+    int from = FROMSQ(move);
+    int to = TOSQ(move);
+
+    assert(sq_on_board(from));
+    assert(sq_on_board(to));
+
+    // Restore the hash of the position before this move
+    pos->pos_key = pos->history[pos->hist_ply].pos_key;
+
+    // Add back in pawns captured en passant
+    if (move & MFLAGEP) {
+        if (pos->side == WHITE) add_piece(to-10, pos, bP);
+        else add_piece(to+10, pos, wP);
+    } else if (move & MFLAGCA) { 
+        // Castle move: move the corresponding rook as well
+        switch (to) {
+            case C1: move_piece(A1, D1, pos); break;
+            case G1: move_piece(H1, F1, pos); break;
+            case C8: move_piece(A8, D8, pos); break;
+            case G8: move_piece(H8, F8, pos); break;
+            default: assert(false);
+        }
+    }
+
+    // NB: We're taking the piece back from the TO sq to the original FROM sq
+    // so instead of move_piece(from, to, pos), we do:
+    move_piece(to, from, pos);
+
+    if (piece_king[pos->pieces[from]]) {
+        pos->king_sq[pos->side] = from;
+    }
+    
+    // Undo a capture, if any
+    int captured = CAPTURED(move);
+    if (captured != EMPTY) {
+        assert(piece_valid(captured));
+        add_piece(to, pos, captured);
+    }
+    // Undo a promotion, if any
+    int promoted = PROMOTED(move);
+    if (promoted != EMPTY) {
+        assert(piece_valid(promoted) && !piece_pawn[promoted]);
+        // The piece that was just created in promotion must be removed from
+        //  the 7th/2nd rank and replaced with a pawn
+        clear_piece(from, pos);
+        add_piece(from, pos, (piece_col[promoted] == WHITE ? wP : bP));
+    }
+
+    assert(check_board(pos));
+}
+
+
+/* make_move: make a move on the board for the given position (pos)
+returns: true if move is valid, false if invalid (i.e. if making the move 
+         puts your own king into check)
+*/
+bool make_move(board_t *pos, int move) {
+    assert(check_board(pos));
+
+    int from = FROMSQ(move);
+    int to = TOSQ(move);
+    int side = pos->side;
+
+    assert(sq_on_board(from));
+    assert(sq_on_board(to));
+    assert(side_valid(side));
+    assert(piece_valid(pos->pieces[from]));
+
+    // Store the hash key of the current position
+    // recall: hist_ply is the number of halfmoves played in the entire game
+    // recall: history[] is an array of undo_t structs which have pos_key
+    pos->history[pos->hist_ply].pos_key = pos->pos_key;
+
+    // Check if move is an en passant move
+    if (move & MFLAGEP) {
+        // Target square direction depends on side
+        // WHITE is 1, BLACK is 0
+        int ep_sq = side ? to - 10 : to + 10;
+        clear_piece(ep_sq, pos);
+    } else if (move & MFLAGCA) { 
+        // Castle move: move the corresponding rook as well
+        switch (to) {
+            case C1: move_piece(A1, D1, pos); break;
+            case G1: move_piece(H1, F1, pos); break;
+            case C8: move_piece(A8, D8, pos); break;
+            case G8: move_piece(H8, F8, pos); break;
+            default: assert(false);
+        }
+    }
+    // If there was an en passant square, hash it out of the key
+    if (pos->en_pas != NO_SQ) HASH_EP;
+    // Hash out the current the castling permission
+    HASH_CA;
+
+    // Update history
+    pos->history[pos->hist_ply].move = move;
+    pos->history[pos->hist_ply].fifty_move = pos->fifty_move;
+    pos->history[pos->hist_ply].en_pas = pos->en_pas;
+    pos->history[pos->hist_ply].castle_perm = pos->castle_perm;
+
+    // update castling permissions
+    // Recall: & has no effect if from or to squares don't matter for castling
+    // Recall: castle_perms is the array defined above; castle_perm is an integer
+    //         in the board_t struct
+    pos->castle_perm &= castle_perms[from];
+    pos->castle_perm &= castle_perms[to];
+    pos->en_pas = NO_SQ;
+
+    // Hash back in the new castling permissions
+    HASH_CA;
+
+    pos->hist_ply++;
+    pos->ply++;
+    pos->fifty_move++;
+
+    // Get captured piece, if any
+    int captured = CAPTURED(move);
+    if (captured != EMPTY) {
+        assert(piece_valid(captured));
+        clear_piece(to, pos);
+        // Fifty move reset to zero when a capture is made
+        pos->fifty_move = 0;
+    }
+
+    // Pawn moves
+    if (piece_pawn[pos->pieces[from]]) {
+        // moving a pawn resets the 50 move rule
+        pos->fifty_move = 0;
+        // Check for pawn start
+        if (move & MFLAGPS) {
+            if (side == WHITE) {
+                pos->en_pas = from + 10;
+                assert(ranks_brd[pos->en_pas] == RANK_3);
+            } else {
+                pos->en_pas = from - 10;
+                assert(ranks_brd[pos->en_pas] == RANK_6);
+            }
+            // Hash in the en passant square
+            HASH_EP;
+        }
+    }
+    
+    // Now that we've cleared all pieces that have been captured off (and dealt
+    //  with castling, en passant, etc.), move the actual piece in question.
+    move_piece(from, to, pos);
+
+    // Check for and deal with promotion
+    int promoted_pce = PROMOTED(move);
+    if (promoted_pce != EMPTY) {
+        assert(piece_valid(promoted_pce) && !piece_pawn[promoted_pce]);
+        clear_piece(to, pos); // clear the pawn
+        add_piece(to, pos, promoted_pce); // add the new piece
+    }
+
+    // If it was a king that moved, update the position king_sq
+    // Probably reduntant, remove later?
+    if(piece_king[pos->pieces[to]]) {
+        pos->king_sq[pos->side] = to;
+    }
+
+    // Change the side 
+    pos->side ^= 1;
+    HASH_SIDE; // hash in the side
+
+    assert(check_board(pos));
+
+    // Check if move is illegal (recall: pos->side is now opponent, side stays the same)
+    if (sq_attacked(pos->king_sq[side], pos->side, pos)) {
+        undo_move(pos);
+        return false;
+    }
+
+    return true;
 }
