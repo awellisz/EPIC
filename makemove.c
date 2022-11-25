@@ -55,28 +55,34 @@ static void clear_piece(const int sq, board_t *pos) {
 
     // If it's not a pawn:
     if (piece_big[pce]) {
-        pos->big_pce[col]--;
-        if (piece_maj[pce]) pos->maj_pce[col]--;
-        else pos->min_pce[col]--;
+        pos->big_pce[col] -= 1;
+        if (piece_maj[pce]) {
+            pos->maj_pce[col] -= 1;
+        } 
+        else {
+            pos->min_pce[col] -= 1;
+        }
     } else {
-        // clear the sq on the pawn bitboard
+        // clear the sq on the pawn bitboard if it's a pawn
         CLRBIT(pos->pawns[col],SQ64(sq));
         CLRBIT(pos->pawns[BOTH],SQ64(sq));
     }
 
+
+    // - find the index of the piece to remove
+    // - replace piece to remove with the last piece in the list
+    // - reduce the piece list length so that it stops at the new end
+    // - (the order of the pieces doesn't matter so this is valid)
     for (int i = 0; i < pos->pce_num[pce]; i++) {
         if (pos->pce_list[pce][i] == sq) {
             t_pce_num = i;
             break;
         }
     }
-
     assert(t_pce_num != -1);
-    pos->pce_num[pce]--;
+    pos->pce_num[pce] -= 1;
     pos->pce_list[pce][t_pce_num] = pos->pce_list[pce][pos->pce_num[pce]];
-    // - replace piece to remove with the last piece in the list
-    // - reduce the piece list length so that it stops at the new end
-    // - (the order of the pieces doesn't matter so this is valid)
+
 }
 
 
@@ -89,7 +95,6 @@ static void add_piece(const int sq, board_t *pos, const int pce) {
     // Hash the new piece INTO the poskey
     HASH_PCE(pce,sq);
     pos->pieces[sq] = pce;
-    pos->material[col] += piece_val[pce];
 
     if (piece_big[pce]) {
         pos->big_pce[col]++;
@@ -100,6 +105,7 @@ static void add_piece(const int sq, board_t *pos, const int pce) {
         SETBIT(pos->pawns[BOTH],SQ64(sq));
     }
 
+    pos->material[col] += piece_val[pce];
     pos->pce_list[pce][pos->pce_num[pce]++] = sq;
 
 }
@@ -114,10 +120,15 @@ static void move_piece(const int from, const int to, board_t *pos) {
     int pce = pos->pieces[from];
     int col = piece_col[pce];
 
-    pos->pieces[from] = EMPTY;
-    pos->pieces[to] = pce;
+    // For debugging
+    bool t_piece_num = false;
+
     HASH_PCE(pce,from);
+    pos->pieces[from] = EMPTY;
+
     HASH_PCE(pce,to);
+    pos->pieces[to] = pce;
+
     // for pawns
     if (!piece_big[pce]) {
         CLRBIT(pos->pawns[col],SQ64(from));
@@ -129,9 +140,11 @@ static void move_piece(const int from, const int to, board_t *pos) {
     for (int i = 0; i < pos->pce_num[pce]; i++) {
         if (pos->pce_list[pce][i] == from) {
             pos->pce_list[pce][i] = to;
+            t_piece_num = true;
             break;
         }
     }
+    assert(t_piece_num);
 }
 
 
@@ -148,6 +161,11 @@ void undo_move(board_t *pos) {
 
     assert(sq_on_board(from));
     assert(sq_on_board(to));
+
+    // Reset castling permissions, fifty move rule, and en passant square
+    pos->castle_perm = pos->history[pos->hist_ply].castle_perm;
+    pos->fifty_move = pos->history[pos->hist_ply].fifty_move;
+    pos->en_pas = pos->history[pos->hist_ply].en_pas;
 
     // Add back in pawns captured en passant
     if (move & MFLAGEP) {
@@ -168,6 +186,7 @@ void undo_move(board_t *pos) {
     // so instead of move_piece(from, to, pos), we do:
     move_piece(to, from, pos);
 
+    // Set king back to 'from' square
     if (piece_king[pos->pieces[from]]) {
         pos->king_sq[pos->side] = from;
     }
@@ -188,6 +207,8 @@ void undo_move(board_t *pos) {
         add_piece(from, pos, (piece_col[promoted] == WHITE ? wP : bP));
     }
     
+    // Change back the side
+    pos->side ^= 1;
     // Replace hash with previous position hash
     pos->pos_key = pos->history[pos->hist_ply].pos_key;
 
@@ -219,8 +240,8 @@ bool make_move(board_t *pos, int move) {
     // Check if move is an en passant move
     if (move & MFLAGEP) {
         // Target square direction depends on side
-        // WHITE is 1, BLACK is 0
-        int ep_sq = side ? to - 10 : to + 10;
+        // WHITE is 0, BLACK is 1
+        int ep_sq = side ? to + 10 : to - 10;
         clear_piece(ep_sq, pos);
     } else if (move & MFLAGCA) { 
         // Castle move: move the corresponding rook as well
@@ -254,9 +275,9 @@ bool make_move(board_t *pos, int move) {
     // Hash back in the new castling permissions
     HASH_CA;
 
+    pos->fifty_move++;
     pos->hist_ply++;
     pos->ply++;
-    pos->fifty_move++;
 
     // Get captured piece, if any
     int captured = CAPTURED(move);
@@ -311,6 +332,9 @@ bool make_move(board_t *pos, int move) {
 
     // Check if move is illegal (recall: pos->side is now opponent; side stays the same)
     if (sq_attacked(pos->king_sq[side], pos->side, pos)) {
+        
+        //print_board(pos);
+        printf("Move %s: king on square %s under attack (illegal)\n", move_to_str(move), sq_to_str(pos->king_sq[side]));
         undo_move(pos);
         return false;
     }
