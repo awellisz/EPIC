@@ -52,5 +52,8 @@ void generate_all_moves(const board_t *pos, movelist_t *list);
 void undo_move(board_t *pos);
 bool make_move(board_t *pos, int move);
 
+// perft.c
+void perft_divide(int depth, board_t *pos);
+
 
 #endif

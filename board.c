@@ -313,5 +313,5 @@ void print_board(const board_t *pos) {
         pos->castle_perm & WQCA ? 'Q' : '-',
         pos->castle_perm & BKCA ? 'k' : '-',
         pos->castle_perm & BQCA ? 'q' : '-');
-    printf("pos key:%llx\n", pos->pos_key);
+    printf("pos key:%lx\n", pos->pos_key);
 }

@@ -8,7 +8,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef unsigned long long U64;
+//typedef unsigned long long U64;
+typedef uint64_t U64;
 
 #define NAME "EPIC" // E.P.I.C. Plays Incredible Chess
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

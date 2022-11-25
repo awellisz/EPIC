@@ -309,7 +309,7 @@ bool make_move(board_t *pos, int move) {
 
     assert(check_board(pos));
 
-    // Check if move is illegal (recall: pos->side is now opponent, side stays the same)
+    // Check if move is illegal (recall: pos->side is now opponent; side stays the same)
     if (sq_attacked(pos->king_sq[side], pos->side, pos)) {
         undo_move(pos);
         return false;
