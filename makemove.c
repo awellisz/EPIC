@@ -139,8 +139,8 @@ static void move_piece(const int from, const int to, board_t *pos) {
 void undo_move(board_t *pos) {
     assert(check_board(pos));
 
-    pos->hist_ply--;
-    pos->ply--;
+    pos->hist_ply -= 1;
+    pos->ply -= 1;
 
     int move = pos->history[pos->hist_ply].move;
     int from = FROMSQ(move);
@@ -148,9 +148,6 @@ void undo_move(board_t *pos) {
 
     assert(sq_on_board(from));
     assert(sq_on_board(to));
-
-    // Restore the hash of the position before this move
-    pos->pos_key = pos->history[pos->hist_ply].pos_key;
 
     // Add back in pawns captured en passant
     if (move & MFLAGEP) {
@@ -190,6 +187,9 @@ void undo_move(board_t *pos) {
         clear_piece(from, pos);
         add_piece(from, pos, (piece_col[promoted] == WHITE ? wP : bP));
     }
+    
+    // Replace hash with previous position hash
+    pos->pos_key = pos->history[pos->hist_ply].pos_key;
 
     assert(check_board(pos));
 }
