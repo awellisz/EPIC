@@ -167,6 +167,9 @@ void undo_move(board_t *pos) {
     pos->fifty_move = pos->history[pos->hist_ply].fifty_move;
     pos->en_pas = pos->history[pos->hist_ply].en_pas;
 
+    // Change back the side
+    pos->side ^= 1;
+
     // Add back in pawns captured en passant
     if (move & MFLAGEP) {
         if (pos->side == WHITE) add_piece(to-10, pos, bP);
@@ -174,10 +177,10 @@ void undo_move(board_t *pos) {
     } else if (move & MFLAGCA) { 
         // Castle move: move the corresponding rook as well
         switch (to) {
-            case C1: move_piece(A1, D1, pos); break;
-            case G1: move_piece(H1, F1, pos); break;
-            case C8: move_piece(A8, D8, pos); break;
-            case G8: move_piece(H8, F8, pos); break;
+            case C1: move_piece(D1, A1, pos); break;
+            case G1: move_piece(F1, H1, pos); break;
+            case C8: move_piece(D8, A8, pos); break;
+            case G8: move_piece(F8, H8, pos); break;
             default: assert(false);
         }
     }
@@ -206,9 +209,7 @@ void undo_move(board_t *pos) {
         clear_piece(from, pos);
         add_piece(from, pos, (piece_col[promoted] == WHITE ? wP : bP));
     }
-    
-    // Change back the side
-    pos->side ^= 1;
+
     // Replace hash with previous position hash
     pos->pos_key = pos->history[pos->hist_ply].pos_key;
 
@@ -311,11 +312,11 @@ bool make_move(board_t *pos, int move) {
     move_piece(from, to, pos);
 
     // Check for and deal with promotion
-    int promoted_pce = PROMOTED(move);
-    if (promoted_pce != EMPTY) {
-        assert(piece_valid(promoted_pce) && !piece_pawn[promoted_pce]);
+    int promoted = PROMOTED(move);
+    if (promoted != EMPTY) {
+        assert(piece_valid(promoted) && !piece_pawn[promoted]);
         clear_piece(to, pos); // clear the pawn
-        add_piece(to, pos, promoted_pce); // add the new piece
+        add_piece(to, pos, promoted); // add the new piece
     }
 
     // If it was a king that moved, update the position king_sq
@@ -330,11 +331,11 @@ bool make_move(board_t *pos, int move) {
 
     assert(check_board(pos));
 
-    // Check if move is illegal (recall: pos->side is now opponent; side stays the same)
+    // Check if move is illegal 
+    // (recall: pos->side is now opponent; side stays the same)
     if (sq_attacked(pos->king_sq[side], pos->side, pos)) {
-        
-        //print_board(pos);
-        printf("Move %s: king on square %s under attack (illegal)\n", move_to_str(move), sq_to_str(pos->king_sq[side]));
+        // debugging:
+        printf("\tMove %s illegal: king on square %s under attack\n", move_to_str(move), sq_to_str(pos->king_sq[side]));
         undo_move(pos);
         return false;
     }

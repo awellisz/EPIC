@@ -191,12 +191,10 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
     pce = loop_slides[pce_i++];
     while (pce != 0) {
         assert(piece_valid(pce));
-        printf("Sliding Piece Index: %d, piece: %d\n", pce_i, pce);
         for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
 
             sq = pos->pce_list[pce][pce_num];
             assert(sq_on_board(sq));
-            printf("Piece: %c on %s\n", pce_char[pce], sq_to_str(sq));
 
             for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
                 dir = pce_dir[pce][i];
@@ -226,13 +224,11 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
     pce = loop_nonslides[pce_i++];
     while (pce != 0) {
         assert(piece_valid(pce));
-        printf("Nonsliding piece index: %d, piece: %d\n", pce_i, pce);
 
         for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
 
             sq = pos->pce_list[pce][pce_num];
             assert(sq_on_board(sq));
-            printf("Piece: %c on %s\n", pce_char[pce], sq_to_str(sq));
 
             for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
                 dir = pce_dir[pce][i];

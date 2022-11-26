@@ -94,8 +94,8 @@ bool check_board(const board_t *pos) {
     assert(pos->en_pas == NO_SQ || (ranks_brd[pos->en_pas] == RANK_6 && pos->side == WHITE)
             || (ranks_brd[pos->en_pas] == RANK_3 && pos->side == BLACK));
     
-    assert(pos->pieces[pos->king_sq[WHITE]] == wK);
-    assert(pos->pieces[pos->king_sq[BLACK]] == bK);
+    //assert(pos->pieces[pos->king_sq[WHITE]] == wK);
+    //assert(pos->pieces[pos->king_sq[BLACK]] == bK);
 
     return true;
 }

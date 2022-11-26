@@ -5,6 +5,9 @@
 #include "defs.h"
 #include "functions.h"
 
+#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define START_D "rnbqkbnr/pppppppp/8/8/8/3P4/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
+#define START_NO_RQ "8/kppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 #define FEN1 "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 #define FEN2 "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
 #define FEN3 "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
@@ -18,6 +21,8 @@
 #define QUEENS "8/2k5/1n3n2/6q1/6N1/8/1Q5K/8 b - - 0 1"
 #define TRICKY "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
+
+#define MOVE(f,t,ca,pro,fl) ((f) | ((t)<<7) | ((ca) << 14) | ((pro) << 20) | (fl))
 
 // test fxn
 void show_atk(const int side, const board_t *pos) {
@@ -46,12 +51,10 @@ int main() {
     board_t board[1];
     movelist_t list[1];
 
-    parse_fen(TRICKY, board);
-    print_board(board);
-    generate_all_moves(board, list);
-
+    parse_fen(START_FEN, board);
     
-    assert(check_board(board));
-    print_move_list(list);
+    perft_divide(3, board);
+    print_board(board);
+
     return 0;
 }
