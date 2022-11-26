@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 // to disable assertions:
-// #define NDEBUG 
+#define NDEBUG 
 #include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>

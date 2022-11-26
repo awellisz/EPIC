@@ -1,9 +1,9 @@
 // perft.c ("PERformance Test")
 // https://www.chessprogramming.org/Perft
 
+#include <stdio.h>
 #include "defs.h"
 #include "functions.h"
-#include <stdio.h>
 
 long perft(int depth, board_t *pos) {
     assert(check_board(pos));

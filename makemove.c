@@ -335,7 +335,7 @@ bool make_move(board_t *pos, int move) {
     // (recall: pos->side is now opponent; side stays the same)
     if (sq_attacked(pos->king_sq[side], pos->side, pos)) {
         // debugging:
-        printf("\tMove %s illegal: king on square %s under attack\n", move_to_str(move), sq_to_str(pos->king_sq[side]));
+        //printf("\tMove %s illegal: king on square %s under attack\n", move_to_str(move), sq_to_str(pos->king_sq[side]));
         undo_move(pos);
         return false;
     }

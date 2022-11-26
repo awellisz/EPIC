@@ -44,12 +44,10 @@ bool sq_attacked(const int sq, const int side, const board_t *pos) {
     //  +11 and +9 direction for black
     if (side == WHITE) {
         if (pos->pieces[sq-11] == wP || pos->pieces[sq-9] == wP) {
-            printf("Attacked by wP\n");
             return true;
         }
     } else {
         if (pos->pieces[sq+11] == bP || pos->pieces[sq+9] == bP) {
-            printf("Attacked by bP\n");
             return true;
         }
     }
@@ -60,7 +58,6 @@ bool sq_attacked(const int sq, const int side, const board_t *pos) {
     for (i = 0; i < 8; i++) {
         pce = pos->pieces[sq + kn_dir[i]];
         if (pce != OFFBOARD && IsN(pce) && piece_col[pce] == side) {
-            printf("Attacked by knight\n");
             return true;
         }
     }
@@ -75,7 +72,6 @@ bool sq_attacked(const int sq, const int side, const board_t *pos) {
         while (pce != OFFBOARD) {
             if (pce != EMPTY) {
                 if (IsRQ(pce) && piece_col[pce] == side) {
-                    printf("Attacked by R or Q\n");
                     return true;
                 }
                 // If you hit a piece but it's not R or Q, exit loop
@@ -95,7 +91,6 @@ bool sq_attacked(const int sq, const int side, const board_t *pos) {
         while (pce != OFFBOARD) {
             if (pce != EMPTY) {
                 if (IsBQ(pce) && piece_col[pce] == side) {
-                    printf("Attacked by B or Q\n");
                     return true;
                 }
                 break;
@@ -110,7 +105,6 @@ bool sq_attacked(const int sq, const int side, const board_t *pos) {
     for (i = 0; i < 8; i++) {
         pce = pos->pieces[sq + ki_dir[i]];
         if (pce != OFFBOARD && IsK(pce) && piece_col[pce] == side) {
-            printf("Attacked by king\n");
             return true;
         }
     }

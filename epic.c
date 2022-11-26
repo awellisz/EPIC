@@ -20,6 +20,7 @@
 #define ROOKS "8/2k5/3r4/3R4/8/1R4r1/7K/8 b - - 0 1"
 #define QUEENS "8/2k5/1n3n2/6q1/6N1/8/1Q5K/8 b - - 0 1"
 #define TRICKY "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+#define PROMOT "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1"
 
 
 #define MOVE(f,t,ca,pro,fl) ((f) | ((t)<<7) | ((ca) << 14) | ((pro) << 20) | (fl))
@@ -51,9 +52,9 @@ int main() {
     board_t board[1];
     movelist_t list[1];
 
-    parse_fen(START_FEN, board);
+    parse_fen(TRICKY, board);
     
-    perft_divide(3, board);
+    perft_divide(6, board);
     print_board(board);
 
     return 0;
