@@ -1,6 +1,8 @@
 // io.c: algebraic notation
 #include <stdio.h>
+#include <assert.h>
 #include "defs.h"
+#include "functions.h"
 
 // Convert a (numeric) square to its algebraic notation version
 char *sq_to_str(const int sq) {
@@ -48,4 +50,44 @@ void print_move_list(const movelist_t *list) {
         printf("Move %d: %s (score: %d)\n", i+1, move_to_str(move), score);
     }
     printf("movelist: %d moves\n", list->count);
+}
+
+// Returns a move based on command line input string
+// Returns zero if no/invalid move
+int parse_move(char *movep, board_t *pos) {
+    // Move must be of the format e.g. a2b3 with valid chess squares
+    if (movep[0] < 'a' || movep[0] > 'h') return 0;
+    if (movep[1] < '1' || movep[1] > '8') return 0;
+    if (movep[2] < 'a' || movep[2] > 'h') return 0;
+    if (movep[3] < '1' || movep[3] > '8') return 0;
+
+    // Get numerical values for file and rank by subtracting ASCII values
+    int from = FR2SQ((movep[0] - 'a'),(movep[1] - '1'));
+    int to = FR2SQ((movep[2] - 'a'),(movep[3] - '1'));
+
+    assert(sq_on_board(from));
+    assert(sq_on_board(to));
+
+    // Loop through all possible legal moves and find which one matches input
+    movelist_t list[1];
+    generate_all_moves(pos, list);
+
+    int move = 0;
+    for (int i = 0; i < list->count; i++) {
+        move = list->moves[i].move;
+        if (FROMSQ(move) == from && TOSQ(move) == to) {
+            int prom = PROMOTED(move);
+            if (prom != EMPTY) {
+                if ((IsRQ(prom) && !IsBQ(prom) && movep[4] == 'r')
+                    || (!IsRQ(prom) && IsBQ(prom) && movep[4] == 'b')
+                    || (IsRQ(prom) && IsBQ(prom) && movep[4] == 'q')
+                    || (IsN(prom) && movep[4] == 'n')) {
+                    return move;
+                }
+                continue;
+            }
+            return move;
+        }
+    }
+    return 0;
 }
