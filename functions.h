@@ -37,6 +37,7 @@ bool sq_attacked(const int sq, const int side, const board_t *pos);
 char *sq_to_str(const int sq);
 char *move_to_str(const int move);
 void print_move_list(const movelist_t *list);
+int parse_move(char *movep, board_t *pos);
 
 // validate.c
 bool sq_on_board(const int sq);
@@ -54,6 +55,11 @@ bool make_move(board_t *pos, int move);
 
 // perft.c
 void perft_divide(int depth, board_t *pos);
+
+// search.c
+bool is_repetition(const board_t *pos);
+
+// util.c
 
 
 #endif
