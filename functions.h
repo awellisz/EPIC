@@ -60,6 +60,7 @@ void perft_divide(int depth, board_t *pos);
 bool is_repetition(const board_t *pos);
 
 // util.c
+int get_time_ms();
 
 
 #endif
