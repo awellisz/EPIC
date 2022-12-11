@@ -3,6 +3,7 @@
  */
 
 #include "defs.h"
+#include "init.h"
 #include "hashkeys.h"
 
 int Sq120ToSq64[BRD_SQ_NUM];

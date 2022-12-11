@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "defs.h"
+#include "init.h"
 
 // Five functions to make sure the arguments to other functions are correct
 // Hopefully will prevent improperly indexing arrays etc.

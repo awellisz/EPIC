@@ -5,6 +5,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "defs.h"
+#include "init.h"
 #include "hashkeys.h"
 
 bool check_board(const board_t *pos) {

@@ -6,6 +6,7 @@
 #include "attack.h"
 #include "board.h"
 #include "defs.h"
+#include "init.h"
 #include "io.h"
 #include "validate.h"
 

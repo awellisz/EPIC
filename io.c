@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "defs.h"
+#include "init.h"
 #include "movegen.h"
 #include "validate.h"
 

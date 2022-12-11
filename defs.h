@@ -213,8 +213,6 @@ extern bool piece_slides[13];
 extern bool piece_pawn[13];
 // define in data.c for movegen.c
 extern int pce_dir[13][8];
-// init.c
-extern int files_brd[BRD_SQ_NUM];
-extern int ranks_brd[BRD_SQ_NUM];
+
 
 #endif
