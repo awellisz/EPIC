@@ -5,6 +5,7 @@
 #include "board.h"
 #include "defs.h"
 #include "init.h"
+#include "movegen.h"
 #include "validate.h"
 
 // Create a move integer from flags etc.

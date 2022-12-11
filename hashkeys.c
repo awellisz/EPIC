@@ -1,4 +1,7 @@
+// hashkeys.c
+
 #include "defs.h"
+#include "hashkeys.h"
 
 U64 rand_U64(void) {
     U64 num1 = (U64) rand();

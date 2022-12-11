@@ -8,6 +8,7 @@
 #include "io.h"
 #include "makemove.h"
 #include "movegen.h"
+#include "perft.h"
 #include "util.h"
 
 long perft(int depth, board_t *pos) {

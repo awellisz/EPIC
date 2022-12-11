@@ -4,6 +4,7 @@
 
 #include "defs.h"
 #include "init.h"
+#include "io.h"
 #include "movegen.h"
 #include "validate.h"
 

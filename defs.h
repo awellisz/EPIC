@@ -187,9 +187,6 @@ to get information about a move
 extern int Sq120ToSq64[BRD_SQ_NUM];
 // same as above, but vice versa
 extern int Sq64ToSq120[64];
-// set mask, clear mask in init.c
-extern U64 set_mask[64];
-extern U64 clear_mask[64];
 // For hash keys
 U64 piece_keys[13][120];
 U64 side_key; 

@@ -2,8 +2,10 @@
 // 11/17/2022
 
 #include <stdbool.h>
+
 #include "defs.h"
 #include "init.h"
+#include "validate.h"
 
 // Five functions to make sure the arguments to other functions are correct
 // Hopefully will prevent improperly indexing arrays etc.

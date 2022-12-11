@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "attack.h"
 #include "defs.h"
 #include "board.h"
 #include "validate.h"

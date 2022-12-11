@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "init.h"
 #include "io.h"
+#include "makemove.h"
 #include "validate.h"
 
 

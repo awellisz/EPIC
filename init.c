@@ -9,9 +9,6 @@
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
-U64 set_mask[64];
-U64 clear_mask[64];
-
 // Used for generating hash keys for each position
 U64 piece_keys[13][120];
 U64 side_key; // Hash in a random number if it's white to move
