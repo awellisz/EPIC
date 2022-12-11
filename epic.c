@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "defs.h"
 #include "functions.h"
@@ -52,10 +53,37 @@ int main() {
     board_t board[1];
     movelist_t list[1];
 
-    parse_fen(TRICKY, board);
-    
-    perft_divide(6, board);
-    print_board(board);
+    parse_fen(START_FEN, board);
+
+    char move_buffer[16];
+    char *m_input;
+    int move = 0;
+    printf("Welcome to EPIC! Enter a move in algebraic notation to begin a game or q to quit.\n");
+
+    while (true) {
+        print_board(board);
+        printf("> ");
+        m_input = fgets(move_buffer, 6, stdin);
+
+        if (m_input[0] == 'q') exit(0);
+
+        // undo move
+        if (m_input[0] == 'u') {
+            undo_move(board);
+        } else if (m_input[0] == 'p') {
+            perft_divide(4, board);
+        } else {
+            move = parse_move(m_input, board);
+            if (move != 0) {
+                make_move(board, move);
+            } else {
+                printf("Invalid or illegal move.\n");
+            }
+        }
+
+        fflush(stdin);
+            
+    }
 
     return 0;
 }

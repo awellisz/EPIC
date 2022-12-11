@@ -107,150 +107,8 @@ static void add_pawn_move(const board_t *pos, const int pawn_col, const int from
 }
 
 
-// Generates pseudo-legal moves -- checking for illegal moves (e.g. moving
-//  a piece that lets your king get in check) will be checked later.
-void generate_all_moves(const board_t *pos, movelist_t *list) {
-    assert(check_board(pos));
-
-    list->count = 0;
-    int pce = EMPTY;
-    int side = pos->side;
-    int sq = 0;
-    int t_sq = 0;
-    int pce_num = 0;
-    // For pawns:
-    int pawn_col, home_rank, opponent_col;
-    int fdir, ldir, rdir;
-    // For pieces:
-    int pce_i; // piece index for loop_slides[] etc.
-
-
-    switch (side) {
-        case WHITE:
-            pawn_col = wP;
-            fdir = 10; // forward direction
-            home_rank = RANK_2;
-            ldir = 9; // left capture direction
-            rdir = 11; // right capture direction
-            opponent_col = BLACK;
-            break;
-        case BLACK:
-            pawn_col = bP;
-            fdir = -10;
-            home_rank = RANK_7;
-            ldir = -9;
-            rdir = -11;
-            opponent_col = WHITE;
-            break;
-        default:
-            fprintf(stderr, "Error: generate_all_moves\n");
-    }
-
-    // Loop through all pawns
-    for (pce_num = 0; pce_num < pos->pce_num[pawn_col]; pce_num++) {
-        // For each pawn, find what square it's on
-        sq = pos->pce_list[pawn_col][pce_num];
-        assert(sq_on_board(sq));
-
-        // Generate non-capture moves
-        // Can only move forward if empty space in front
-        // Moving a pawn forward is +/- 10 on board square number representation
-        if (pos->pieces[sq + fdir] == EMPTY) {
-            add_pawn_move(pos, pawn_col, sq, sq+fdir, EMPTY, list);
-            // First pawn move: either 1 or 2 squares
-            if (ranks_brd[sq] == home_rank && pos->pieces[sq + 2*fdir] == EMPTY) {
-                // "pawn start" flag is set
-                add_quiet_move(pos, MOVE(sq,(sq+2*fdir),EMPTY,EMPTY,MFLAGPS),list);
-            }
-        }
-        // Pawns capture in +9/+11 or -9/-11 directions. If the attacked square 
-        // is on the board and has opponent's piece, add the move.
-        if (!SQOFFBOARD(sq+ldir) && piece_col[pos->pieces[sq+ldir]] == opponent_col) {
-            add_pawn_move(pos, pawn_col, sq, sq+ldir, pos->pieces[sq+ldir], list);
-        }
-        if (!SQOFFBOARD(sq+rdir) && piece_col[pos->pieces[sq+rdir]] == opponent_col) {
-            add_pawn_move(pos, pawn_col, sq, sq+rdir, pos->pieces[sq+rdir], list);
-        }
-        // En passant move
-        if (!SQOFFBOARD(sq+fdir) && (sq+ldir == pos->en_pas)) {
-            add_capture_move(pos, MOVE(sq, sq+ldir, EMPTY, EMPTY, MFLAGEP), list);
-        } else if (!SQOFFBOARD(sq+rdir) && (sq+rdir == pos->en_pas)) {
-            add_capture_move(pos, MOVE(sq, sq+rdir, EMPTY, EMPTY, MFLAGEP), list);
-        }
-    }
-
-    //////////////////////////////////
-    // CONSIDER LOOPING BACKWARS SO THAT 
-    // WE GENERATE MOVES FOR HIGH-VALUE PIECES FIRST --
-    // THIS WILL BE IMPORTANT FOR ALPHA BETA PRUNING LATER
-    ////////////////////////////////////
-
-    // SLIDING PIECES (BISHOP, ROOK, QUEEN)
-    int dir = 0;
-    pce_i = ls_index[side]; //piece index
-    pce = loop_slides[pce_i++];
-    while (pce != 0) {
-        assert(piece_valid(pce));
-        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
-
-            sq = pos->pce_list[pce][pce_num];
-            assert(sq_on_board(sq));
-
-            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
-                dir = pce_dir[pce][i];
-                t_sq = sq + dir;
-
-                // Loop along the "ray" in each direction
-                while(!SQOFFBOARD(t_sq)) {
-                    // recall: BLACK = 0, WHITE = 1
-                    if (pos->pieces[t_sq] != EMPTY) {
-                        if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-                            add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-                        }
-                        // break out if we hit a non-empty square
-                        break;
-                    }
-                    add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
-                    t_sq += dir;
-                }
-            }
-        }
-        pce = loop_slides[pce_i++];
-    }
-    
-
-    // NON-SLIDING PIECES (KNIGHT AND KING)
-    pce_i = ln_index[side]; //piece index
-    pce = loop_nonslides[pce_i++];
-    while (pce != 0) {
-        assert(piece_valid(pce));
-
-        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
-
-            sq = pos->pce_list[pce][pce_num];
-            assert(sq_on_board(sq));
-
-            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
-                dir = pce_dir[pce][i];
-                t_sq = sq + dir;
-
-                if(SQOFFBOARD(t_sq)) continue;
-
-                // recall: BLACK = 0, WHITE = 1; side^1 = opposite
-                if (pos->pieces[t_sq] != EMPTY) {
-                    if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
-                        add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-                    }
-                    continue;
-                }
-                add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
-            }
-        }
-        pce = loop_nonslides[pce_i++];
-    }
-
-    // Castling
-    if (side == WHITE) {
+void generate_castle_moves(const board_t *pos, movelist_t *list) {
+    if (pos->side == WHITE) {
         if (pos->castle_perm & WKCA) {
             // Make sure there's nothing between the king and H1 rook
             if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
@@ -290,6 +148,159 @@ void generate_all_moves(const board_t *pos, movelist_t *list) {
             }
         }
     }
+}
+
+// Generate pseudo-legal moves for the knight and king (besides castling)
+void generate_nonsliding_moves(const board_t *pos, movelist_t *list) {
+
+    int dir = 0;
+    int side = pos->side;
+    int pce_index = ln_index[side];
+    int pce = loop_nonslides[pce_index++];
+    int pce_num, sq, t_sq;
+
+    while (pce != 0) {
+        assert(piece_valid(pce));
+
+        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
+
+            sq = pos->pce_list[pce][pce_num];
+            assert(sq_on_board(sq));
+
+            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
+                dir = pce_dir[pce][i];
+                t_sq = sq + dir;
+
+                if(SQOFFBOARD(t_sq)) continue;
+
+                // recall: side^1 = opponent's side
+                if (pos->pieces[t_sq] != EMPTY) {
+                    if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+                        add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+                    }
+                    continue;
+                }
+                add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
+            }
+        }
+        pce = loop_nonslides[pce_index++];
+    }
+}
+
+// Generate pseudo-legal moves for bishops, rooks, queens
+    // CONSIDER LOOPING BACKWARS SO THAT 
+    // WE GENERATE MOVES FOR HIGH-VALUE PIECES FIRST --
+    // THIS WILL BE IMPORTANT FOR ALPHA BETA PRUNING LATER
+void generate_sliding_moves(const board_t *pos, movelist_t *list) {
+    int side = pos->side;
+    int dir = 0;
+    int pce_index = ls_index[side]; 
+    int pce = loop_slides[pce_index++];
+    int pce_num, sq, t_sq;
+
+    while (pce != 0) {
+        assert(piece_valid(pce));
+        for (pce_num = 0; pce_num < pos->pce_num[pce]; pce_num++) {
+
+            sq = pos->pce_list[pce][pce_num];
+            assert(sq_on_board(sq));
+
+            for (int i = 0; pce_dir[pce][i] && i < 8; i++) {
+                dir = pce_dir[pce][i];
+                t_sq = sq + dir;
+
+                // Loop along the "ray" in each direction
+                while(!SQOFFBOARD(t_sq)) {
+                    if (pos->pieces[t_sq] != EMPTY) {
+                        // Capture move if we hit non-empty square w/ opponent's piece
+                        if (piece_col[pos->pieces[t_sq]] == (side ^ 1)) {
+                            add_capture_move(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
+                        }
+                        // break out if we hit a non-empty square
+                        break;
+                    }
+                    add_quiet_move(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
+                    t_sq += dir;
+                }
+            }
+        }
+        pce = loop_slides[pce_index++];
+    }  
+}
+
+
+void generate_pawn_moves(const board_t *pos, movelist_t *list) {
     
+    int side = pos->side;
+    int sq = 0;
+    
+    int pawn_col, home_rank, opponent_col;
+    int fdir, ldir, rdir;
+
+    switch (side) {
+        case WHITE:
+            pawn_col = wP;
+            fdir = 10; // forward direction
+            home_rank = RANK_2;
+            ldir = 9; // left capture direction
+            rdir = 11; // right capture direction
+            opponent_col = BLACK;
+            break;
+        case BLACK:
+            pawn_col = bP;
+            fdir = -10;
+            home_rank = RANK_7;
+            ldir = -9;
+            rdir = -11;
+            opponent_col = WHITE;
+            break;
+        default:
+            fprintf(stderr, "Error: generate_all_moves\n");
+    }
+
+    // Loop through all pawns
+    for (int pce_num = 0; pce_num < pos->pce_num[pawn_col]; pce_num++) {
+        // For each pawn, find what square it's on
+        sq = pos->pce_list[pawn_col][pce_num];
+        assert(sq_on_board(sq));
+
+        // Generate non-capture moves
+        // Can only move forward if empty space in front
+        // Moving a pawn forward is +/- 10 on board square number representation
+        if (pos->pieces[sq + fdir] == EMPTY) {
+            add_pawn_move(pos, pawn_col, sq, sq+fdir, EMPTY, list);
+            // First pawn move: either 1 or 2 squares
+            if (ranks_brd[sq] == home_rank && pos->pieces[sq + 2*fdir] == EMPTY) {
+                // "pawn start" flag is set
+                add_quiet_move(pos, MOVE(sq,(sq+2*fdir),EMPTY,EMPTY,MFLAGPS),list);
+            }
+        }
+        // Pawns capture in +9/+11 or -9/-11 directions. If the attacked square 
+        // is on the board and has opponent's piece, add the move.
+        if (!SQOFFBOARD(sq+ldir) && piece_col[pos->pieces[sq+ldir]] == opponent_col) {
+            add_pawn_move(pos, pawn_col, sq, sq+ldir, pos->pieces[sq+ldir], list);
+        }
+        if (!SQOFFBOARD(sq+rdir) && piece_col[pos->pieces[sq+rdir]] == opponent_col) {
+            add_pawn_move(pos, pawn_col, sq, sq+rdir, pos->pieces[sq+rdir], list);
+        }
+        // En passant move
+        if (!SQOFFBOARD(sq+fdir) && (sq+ldir == pos->en_pas)) {
+            add_capture_move(pos, MOVE(sq, sq+ldir, EMPTY, EMPTY, MFLAGEP), list);
+        } else if (!SQOFFBOARD(sq+rdir) && (sq+rdir == pos->en_pas)) {
+            add_capture_move(pos, MOVE(sq, sq+rdir, EMPTY, EMPTY, MFLAGEP), list);
+        }
+    }
+}
+
+// Generates pseudo-legal moves -- checking for illegal moves (e.g. moving
+//  a piece that lets your king get in check) will be checked later.
+void generate_all_moves(const board_t *pos, movelist_t *list) {
+    assert(check_board(pos));
+    list->count = 0;
+
+    generate_pawn_moves(pos, list);
+    generate_sliding_moves(pos, list);
+    generate_nonsliding_moves(pos, list);
+    generate_castle_moves(pos, list);
 
 }
