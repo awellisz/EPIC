@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attack.h"
+#include "board.h"
 #include "defs.h"
-#include "functions.h"
+#include "init.h"
+#include "io.h"
+#include "makemove.h"
+#include "perft.h"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define START_D "rnbqkbnr/pppppppp/8/8/8/3P4/PPP1PPPP/RNBQKBNR b KQkq - 0 1"

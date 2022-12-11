@@ -4,7 +4,8 @@
 #include <stdio.h>
 
 #include "defs.h"
-#include "functions.h"
+#include "board.h"
+#include "validate.h"
 
 /* Knight, rook, bishop, and king direction arrays
 Arrays represent the possible directions each piece type can attack from

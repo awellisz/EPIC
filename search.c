@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+
 #include "defs.h"
-#include "functions.h"
 
 // Check if the current position is a repetition of any previous position
 // NB: The fifty move rule counter is reset for pawn moves and captures because

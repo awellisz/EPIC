@@ -1,8 +1,10 @@
 // io.c: algebraic notation
 #include <stdio.h>
 #include <assert.h>
+
 #include "defs.h"
-#include "functions.h"
+#include "movegen.h"
+#include "validate.h"
 
 // Convert a (numeric) square to its algebraic notation version
 char *sq_to_str(const int sq) {

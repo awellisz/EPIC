@@ -2,8 +2,13 @@
 // https://www.chessprogramming.org/Perft
 
 #include <stdio.h>
+
+#include "board.h"
 #include "defs.h"
-#include "functions.h"
+#include "io.h"
+#include "makemove.h"
+#include "movegen.h"
+#include "util.h"
 
 long perft(int depth, board_t *pos) {
     assert(check_board(pos));
@@ -33,6 +38,8 @@ void perft_divide(int depth, board_t *pos) {
     print_board(pos);
     printf("\nStarting test to depth %d\n", depth);
 
+    int start_time = get_time_ms();
+
     long leaf_nodes = 0;
 
     movelist_t list[1];
@@ -52,7 +59,7 @@ void perft_divide(int depth, board_t *pos) {
         printf("Move %d : %s : %ld\n", i + 1, move_to_str(move), old_nodes);
     }
 
-    printf("\nperft complete: %ld nodes total\n", leaf_nodes);
+    printf("\nperft complete: %ld nodes in %dms\n", leaf_nodes, get_time_ms() - start_time);
 
     return;
 }

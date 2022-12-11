@@ -2,8 +2,13 @@
 // 11/21/22
 #include <stdio.h>
 #include <stdbool.h>
+
+#include "attack.h"
+#include "board.h"
 #include "defs.h"
-#include "functions.h"
+#include "io.h"
+#include "validate.h"
+
 
 // Hashing macros: assume board position pointer is called "pos"
 #define HASH_PCE(pce, sq) (pos->pos_key ^= (piece_keys[(pce)][(sq)]))

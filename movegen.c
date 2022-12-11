@@ -1,6 +1,10 @@
 #include <stdio.h>
+
+
+#include "attack.h"
+#include "board.h"
 #include "defs.h"
-#include "functions.h"
+#include "validate.h"
 
 // Create a move integer from flags etc.
 // from, to, capture, promotion, flags
