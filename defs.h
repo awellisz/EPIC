@@ -182,15 +182,6 @@ to get information about a move
  *    GLOBALS   *
  ****************/
 
-// Take an index from 21 to 98 on a 120-sq board representation
-//  and return the index on a 64-position based board
-extern int Sq120ToSq64[BRD_SQ_NUM];
-// same as above, but vice versa
-extern int Sq64ToSq120[64];
-// For hash keys
-U64 piece_keys[13][120];
-U64 side_key; 
-U64 castle_keys[16];
 // for print board (data.c)
 extern char pce_char[];
 extern char side_char[];

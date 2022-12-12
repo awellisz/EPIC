@@ -1,6 +1,7 @@
 // hashkeys.c
 
 #include "defs.h"
+#include "init.h"
 #include "hashkeys.h"
 
 U64 rand_U64(void) {

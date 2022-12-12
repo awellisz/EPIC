@@ -6,18 +6,6 @@
 #include "init.h"
 #include "hashkeys.h"
 
-int Sq120ToSq64[BRD_SQ_NUM];
-int Sq64ToSq120[64];
-
-// Used for generating hash keys for each position
-U64 piece_keys[13][120];
-U64 side_key; // Hash in a random number if it's white to move
-U64 castle_keys[16]; // 16 castle keys bc 4 bits -> 16 possible numbers
-
-// arrays to see what rank or file a square is
-int files_brd[BRD_SQ_NUM];
-int ranks_brd[BRD_SQ_NUM];
-
 void init_files_ranks_brd() {
     int file, rank, sq;
     // initialize all squares to OFFBOARD
