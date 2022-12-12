@@ -4,9 +4,10 @@
 
 #include "bitboards.h"
 #include "board.h"
+#include "data.h"
 #include "defs.h"
-#include "init.h"
 #include "hashkeys.h"
+#include "init.h"
 
 bool check_board(const board_t *pos) {
     // temporary variables to check all these values

@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "attack.h"
+#include "data.h"
 #include "defs.h"
 #include "board.h"
 #include "validate.h"

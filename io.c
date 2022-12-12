@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "data.h"
 #include "defs.h"
 #include "init.h"
 #include "io.h"

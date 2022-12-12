@@ -116,8 +116,8 @@ typedef struct {
 
 
 /************************
- GAME MOVE REPRESENTATION
-*************************/
+ * GAME MOVE REPRESENTATION
+ ************************/
 
 /*
 - In the 120-sq representation, the lowest square is 21 and the higest is 98.
@@ -176,31 +176,6 @@ to get information about a move
 #define IsRQ(p) (piece_rook_queen[(p)])
 #define IsN(p) (piece_knight[(p)])
 #define IsK(p) (piece_king[(p)])
-
-
-/****************
- *    GLOBALS   *
- ****************/
-
-// for print board (data.c)
-extern char pce_char[];
-extern char side_char[];
-extern char rank_char[];
-extern char file_char[];
-// characteristics of pieces (see data.c)
-extern bool piece_big[13];
-extern bool piece_maj[13];
-extern bool piece_min[13];
-extern int piece_val[13];
-extern int piece_col[13];
-extern bool piece_knight[13];
-extern bool piece_king[13];
-extern bool piece_rook_queen[13];
-extern bool piece_bishop_queen[13];
-extern bool piece_slides[13];
-extern bool piece_pawn[13];
-// define in data.c for movegen.c
-extern int pce_dir[13][8];
 
 
 #endif

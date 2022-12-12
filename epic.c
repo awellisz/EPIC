@@ -5,6 +5,7 @@
 
 #include "attack.h"
 #include "board.h"
+#include "data.h"
 #include "defs.h"
 #include "init.h"
 #include "io.h"

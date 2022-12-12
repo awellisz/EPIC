@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "data.h"
 #include "defs.h"
 #include "init.h"
 #include "validate.h"
