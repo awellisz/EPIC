@@ -2,6 +2,7 @@
 #define PERFT_H 
 
 #include "defs.h"
+#include "board.h"
 
 void perft_divide(int depth, board_t *pos);
 

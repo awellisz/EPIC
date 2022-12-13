@@ -1,6 +1,9 @@
 #ifndef IO_H 
 #define IO_H
 
+#include "board.h"
+#include "movegen.h"
+
 char *sq_to_str(const int sq);
 char *move_to_str(const int move);
 void print_move_list(const movelist_t *list);

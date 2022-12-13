@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "board.h"
 #include "defs.h"
 #include "search.h"
 

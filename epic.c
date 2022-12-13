@@ -10,6 +10,7 @@
 #include "init.h"
 #include "io.h"
 #include "makemove.h"
+#include "movegen.h"
 #include "perft.h"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -1,5 +1,6 @@
 // hashkeys.c
 
+#include "board.h"
 #include "defs.h"
 #include "init.h"
 #include "hashkeys.h"
