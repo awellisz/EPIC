@@ -77,6 +77,7 @@ typedef struct {
     int pce_list[13][10];
 
     pvtable_t pvtable[1];
+    int pv_array[MAX_DEPTH];
 
 } board_t;
 

@@ -8,6 +8,32 @@
 #include "defs.h"
 #include "pvtable.h"
 
+int get_pv_line(const int depth, board_t *pos) {
+    assert(depth < MAX_DEPTH);
+    // recall: returns NOMOVE if no move found
+    int move = probe_pvtable(pos);
+    int count = 0;
+    while (move != NOMOVE && count < depth) {
+        // If the move exists, make the move, add the move into the PV array,
+        // and increment the count.
+        if (move_exists(pos, move)) {
+            make_move(pos, move);
+            pos->pv_array[count++] = move;
+        } else {
+            break;
+        }
+        // Probe again 
+        move = probe_pvtable(pos);
+    }
+
+    // Undo all moves to get back to original position
+    while (pos->ply > 0) {
+        undo_move(pos);
+    }
+
+    return count;
+}
+
 const int pv_size = 0x100000 * 2; // 2 megabytes to allocate
 
 void clear_pvtable(pvtable_t *table) {
@@ -35,7 +61,6 @@ void store_pv_move(const board_t *pos, const int move) {
     // Give an index between 0 and (num_entries - 1)
     // Should be unique for each position key
     int index = pos->pos_key % pos->pvtable->num_entries;
-    assert(index >= 0 && index <= pos->pvtable->num_entries - 1);
 
     pos->pvtable->p_table[index].move = move;
     pos->pvtable->p_table[index].pos_key = pos->pos_key;
@@ -46,7 +71,6 @@ int probe_pvtable(const board_t *pos) {
     // Get hash of position key
     // Hash collisions are possible, dealt with later
     int index = pos->pos_key % pos->pvtable->num_entries;
-    assert(index >= 0 && index <= pos->pvtable->num_entries - 1);
 
     if (pos->pvtable->p_table[index].pos_key == pos->pos_key) {
         return pos->pvtable->p_table[index].move;

@@ -16,5 +16,6 @@ typedef struct {
 } movelist_t;
 
 void generate_all_moves(const board_t *pos, movelist_t *list);
+bool move_exists(board_t *pos, const int move);
 
 #endif

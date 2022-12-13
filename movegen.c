@@ -1,11 +1,12 @@
 #include <stdio.h>
-
+#include <stdbool.h>
 
 #include "attack.h"
 #include "board.h"
 #include "data.h"
 #include "defs.h"
 #include "init.h"
+#include "makemove.h"
 #include "movegen.h"
 #include "validate.h"
 
@@ -27,13 +28,28 @@ const int ls_index[2] = {0, 4};
 const int loop_nonslides[6] = {wN, wK, 0, bN, bK, 0};
 const int ln_index[2] = {0, 3}; 
 
+// const int piece_dir[13][8] = {
+//     {0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0},
+// };
 
-
-const int piece_dir[13][8] = {
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
+// Check if a move exists
+// Used for PV Table
+bool move_exists(board_t *pos, const int move) {
+    movelist_t list[1];
+    generate_all_moves(pos, list);
     
-};
+    for (int move_num = 0; move_num < list->count; move_num++) {
+        // If move is illegal, skip over it
+        if (!make_move(pos, list->moves[move_num].move)) continue;
+        // If move is legal, take it back and see if it's equal to input move
+        undo_move(pos);
+        if (list->moves[move_num].move == move) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // Static for performance reasons
 // Add the input move into the movelist's array and updates the count
