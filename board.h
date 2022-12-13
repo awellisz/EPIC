@@ -79,6 +79,15 @@ typedef struct {
     pvtable_t pvtable[1];
     int pv_array[MAX_DEPTH];
 
+    // Reset at the start of search
+    // When a move beats alpha, for that piece type and its 'to' square,
+    // incremement that array entry by 1
+    int search_history[13][BRD_SQ_NUM];
+    // Store 2 moves indexed by depth
+    // 2 most recent moves that cause a beta cutoff that aren't captures
+    int search_killers[2][MAX_DEPTH];
+    // Used to set scores in the move generator
+
 } board_t;
 
 void reset_board(board_t *pos);
