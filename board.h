@@ -2,6 +2,7 @@
 #define BOARD_H 
 
 #include "defs.h"
+#include "pvtable.h"
 
 // struct containing information to undo a move
 typedef struct {
@@ -61,6 +62,8 @@ typedef struct {
     // Once we hit NO_SQ, we know there are no more of that particular piece on the board
     // Overhead much lower than looping through every square on the board
     int pce_list[13][10];
+
+    pvtable_t pvtable[1];
 
 } board_t;
 

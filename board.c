@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "hashkeys.h"
 #include "init.h"
+#include "pvtable.h"
 
 bool check_board(const board_t *pos) {
     // temporary variables to check all these values
@@ -282,13 +283,14 @@ void reset_board(board_t *pos) {
     pos->side = BOTH;
     pos->en_pas = NO_SQ;
     pos->fifty_move = 0;
-
     pos->ply = 0;
     pos->hist_ply = 0;
-
     pos->castle_perm = 0;
-
     pos->pos_key = 0ULL;
+
+    // Reset PV table
+    pos->pvtable->p_table = NULL; // Avoid undefined behavior (freeing uninitialized ptr)
+    init_pvtable(pos->pvtable);
 }
 
 void print_board(const board_t *pos) {
