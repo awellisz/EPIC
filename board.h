@@ -2,7 +2,6 @@
 #define BOARD_H 
 
 #include "defs.h"
-#include "pvtable.h"
 
 // struct containing information to undo a move
 typedef struct {
@@ -12,6 +11,20 @@ typedef struct {
     int fifty_move;
     U64 pos_key;
 } undo_t;
+
+// Principle variation entry
+// When a move is found in the search that beats alpha (best move),
+// store the move and the unique position key that leads to it.
+typedef struct {
+    U64 pos_key;
+    int move;
+} pventry_t;
+
+// Pointer is allocated and realloc'd
+typedef struct {
+    pventry_t *p_table;
+    int num_entries;
+} pvtable_t;
 
 // Board representation 
 typedef struct {

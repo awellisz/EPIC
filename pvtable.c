@@ -2,7 +2,9 @@
 // 12/12/22
 
 #include <stdio.h>
+#include <assert.h>
 
+#include "board.h"
 #include "defs.h"
 #include "pvtable.h"
 
@@ -27,4 +29,29 @@ void init_pvtable(pvtable_t *table) {
     table->p_table = (pventry_t *) malloc(table->num_entries * sizeof(pventry_t));
     clear_pvtable(table);
     printf("pvtable initialized: %d entries\n", table->num_entries);
+}
+
+void store_pv_move(const board_t *pos, const int move) {
+    // Give an index between 0 and (num_entries - 1)
+    // Should be unique for each position key
+    int index = pos->pos_key % pos->pvtable->num_entries;
+    assert(index >= 0 && index <= pos->pvtable->num_entries - 1);
+
+    pos->pvtable->p_table[index].move = move;
+    pos->pvtable->p_table[index].pos_key = pos->pos_key;
+}
+
+// Retrieve a move from the PV table
+int probe_pvtable(const board_t *pos) {
+    // Get hash of position key
+    // Hash collisions are possible, dealt with later
+    int index = pos->pos_key % pos->pvtable->num_entries;
+    assert(index >= 0 && index <= pos->pvtable->num_entries - 1);
+
+    if (pos->pvtable->p_table[index].pos_key == pos->pos_key) {
+        return pos->pvtable->p_table[index].move;
+    }
+
+    // If nothing found, return 0
+    return NOMOVE;
 }
