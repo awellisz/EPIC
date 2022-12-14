@@ -88,24 +88,4 @@ to get information about a move
 // Was the move a promotion?
 #define MFLAGPROM 0xF00000
 
-
-/****************
- *    MACROS    *
- ****************/
-
-// Given file and rank, return 120-sq based square number
-#define FR2SQ(f, r) ((21 + f) + (r * 10))
-#define SQ64(sq120) (Sq120ToSq64[sq120])
-#define SQ120(sq64) (Sq64ToSq120[sq64])
-// Set or clear a bit on a bitboard (used for pawns)
-#define SETBIT(bb,sq) ((bb) |= set_mask[(sq)])
-#define CLRBIT(bb,sq) ((bb) &= clear_mask[(sq)])
-
-// For attack.c: check piece type
-#define IsBQ(p) (piece_bishop_queen[(p)])
-#define IsRQ(p) (piece_rook_queen[(p)])
-#define IsN(p) (piece_knight[(p)])
-#define IsK(p) (piece_king[(p)])
-
-
 #endif

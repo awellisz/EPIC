@@ -6,6 +6,8 @@
 
 #include "board.h"
 #include "defs.h"
+#include "makemove.h"
+#include "movegen.h"
 #include "pvtable.h"
 
 int get_pv_line(const int depth, board_t *pos) {

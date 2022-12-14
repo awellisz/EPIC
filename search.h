@@ -20,6 +20,6 @@ typedef struct {
 } searchinfo_t;
 
 bool is_repetition(const board_t *pos);
-void search_positions(board_t *pos, searchinfo_t *info)
+void search_positions(board_t *pos, searchinfo_t *info);
 
 #endif

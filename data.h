@@ -23,4 +23,10 @@ extern bool piece_pawn[13];
 //  for movegen.c
 extern int pce_dir[13][8];
 
+// For attack.c: check piece type
+#define IsBQ(p) (piece_bishop_queen[(p)])
+#define IsRQ(p) (piece_rook_queen[(p)])
+#define IsN(p) (piece_knight[(p)])
+#define IsK(p) (piece_king[(p)])
+
 #endif 
