@@ -14,6 +14,8 @@ typedef uint64_t U64;
 #define NAME "EPIC" // E.P.I.C. Plays Incredible Chess
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+#define INF 1000000
+
 enum { MAX_DEPTH = 64 };
 enum { BRD_SQ_NUM = 120 };
 enum { MAX_GAME_MOVES = 2048 };

@@ -3,9 +3,10 @@
 
 #include "board.h"
 #include "defs.h"
+#include "io.h"
 #include "pvtable.h"
 #include "search.h"
-#include "util.c"
+#include "util.h"
 
 static void check_up() {
     // Check if time is up or interrupt from GUI
@@ -60,6 +61,40 @@ static int alpha_beta(int alpha, int beta, int depth, board_t *pos,
 }
 
 void search_positions(board_t *pos, searchinfo_t *info) {
-    // Iterative deepening, search initialization
+    // Iterative deepening: search to depth 1, then start over to 2, then start over to 3...
+    //  Principle variation used in alpha-beta to play the optimum line in the new depth
+    //  Alpha-beta pruning depends heavily on move ordering
+    //  Information held in principle variation, search history heuristic, and
+    //   search killers heuristic improves the move ordering in search
+    //  -> iterative deepening actually leads to fewer total nodes searched (more efficient)
+    //     because alpha-beta can prune more moves 
+
+    clear_for_search(pos, info);
+    int pv_moves = 0;
+    int pv_number = 0;
+    int best_move = NOMOVE;
+    int best_score = -INF;
+
+    // Loop through all depths
+    for (int current_depth = 1; current_depth <= info->depth; current_depth++) {
+        // Get current best score
+        //                      alpha, beta
+        best_score = alpha_beta(-INF, INF, current_depth, pos, info, true);
+        // Get principle variation
+        pv_moves = get_pv_line(current_depth, pos);
+        // First move in the principle variation array is the best move in the position
+        best_move = pos->pv_array[0];
+        printf("Depth: %d Score: %d Move: %s Nodes: %ld\n", current_depth, best_score, move_to_str(best_move), info->nodes);
+
+        pv_moves = get_pv_line(current_depth, pos);
+        printf("pv");
+        for (pv_number = 0; pv_number <= pv_moves; pv_number++) {
+            printf(" %s", move_to_str(pos->pv_array[pv_number]));
+        }
+        printf("\n");
+    }
+
+    
+
     return;
 }
