@@ -16,7 +16,7 @@ typedef struct {
 
     long nodes; // count of all nodes searched
     bool quit; // 
-    bool stopped; // stop 
+    bool stopped; // true if GUI sends an interrupt that engine is running out of time
 } searchinfo_t;
 
 bool is_repetition(const board_t *pos);
